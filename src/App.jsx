@@ -1,22 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
+import Confetti from "react-confetti"; 
+import { useWindowSize } from "react-use"; 
 import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
 
-import MouseStealing from "./MouseStealer.jsx";
+import MouseStealing from './MouseStealer.jsx';
+import WordMareque from './MarqueeProposal.jsx';
+
 import lovesvg from "./assets/All You Need Is Love SVG Cut File.svg";
 import Lovegif from "./assets/GifData/main_temp.gif";
 import heartGif from "./assets/GifData/happy.gif";
 import sadGif from "./assets/GifData/sad.gif";
-import WordMareque from "./MarqueeProposal.jsx";
-import purposerose from "./assets/GifData/RoseCute.gif";
-import swalbg from "./assets/Lovingbg2_main.jpg";
-import loveu from "./assets/GifData/cutieSwal4.gif";
+import purposerose from './assets/GifData/RoseCute.gif';
+import swalbg from './assets/Lovingbg2_main.jpg';
+import loveu from './assets/GifData/cutieSwal4.gif';
 
-// ❤️ HER NAME
-const HER_NAME = "Vanshika";
-
-// YES GIFS
+//! yes - Gifs Importing
 import yesgif0 from "./assets/GifData/Yes/lovecutie0.gif";
 import yesgif1 from "./assets/GifData/Yes/love2.gif";
 import yesgif2 from "./assets/GifData/Yes/love3.gif";
@@ -30,7 +30,7 @@ import yesgif9 from "./assets/GifData/Yes/lovecutie9.gif";
 import yesgif10 from "./assets/GifData/Yes/lovecutie6.gif";
 import yesgif11 from "./assets/GifData/Yes/lovecutie4.gif";
 
-// NO GIFS
+//! no - Gifs Importing
 import nogif0 from "./assets/GifData/No/breakRej0.gif";
 import nogif0_1 from "./assets/GifData/No/breakRej0_1.gif";
 import nogif1 from "./assets/GifData/No/breakRej1.gif";
@@ -42,12 +42,13 @@ import nogif6 from "./assets/GifData/No/breakRej6.gif";
 import nogif7 from "./assets/GifData/No/RejectNo.gif";
 import nogif8 from "./assets/GifData/No/breakRej7.gif";
 
-// MUSIC
+//! yes - Music Importing
 import yesmusic1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
 import yesmusic2 from "./assets/AudioTracks/Love_EDPerfect.mp3";
 import yesmusic3 from "./assets/AudioTracks/Love_Nadaaniyan.mp3";
 import yesmusic4 from "./assets/AudioTracks/Love_JoTumMereHo.mp3";
 
+//! no - Music Importing
 import nomusic1 from "./assets/AudioTracks/Rejection_WeDontTalkAnyMore.mp3";
 import nomusic2 from "./assets/AudioTracks/Rejection_LoseYouToLoveMe.mp3";
 import nomusic3 from "./assets/AudioTracks/Reject_withoutMe.mp3";
@@ -62,133 +63,311 @@ const NoMusic = [nomusic1, nomusic2, nomusic3, nomusic4, nomusic5];
 export default function Page() {
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState(null);
-  const [currentGifIndex, setCurrentGifIndex] = useState(0);
+  
+  const audioRef = useRef(new Audio()); 
   const [isMuted, setIsMuted] = useState(false);
+  
+  const [currentGifIndex, setCurrentGifIndex] = useState(0); 
   const [popupShown, setPopupShown] = useState(false);
   const [yespopupShown, setYesPopupShown] = useState(false);
+  
+  const { width, height } = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : { width: 0, height: 0 };
 
   const gifRef = useRef(null);
+  
+  const yesButtonSize = Math.min(noCount * 10 + 16, 100); 
 
-  // 🔒 size cap (mobile safe)
-  const yesButtonSize = Math.min(noCount * 16 + 16, 72);
+  const [floatingGifs, setFloatingGifs] = useState([]);
 
-  const playMusic = (url, list) => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+  const generateRandomPositionWithSpacing = (existingPositions) => {
+    let position;
+    let tooClose;
+    const minDistance = 15; 
+  
+    do {
+      position = {
+        top: `${Math.random() * 80}vh`, 
+        left: `${Math.random() * 80}vw`,
+      };
+  
+      tooClose = existingPositions.some((p) => {
+        const dx = Math.abs(parseFloat(p.left) - parseFloat(position.left));
+        const dy = Math.abs(parseFloat(p.top) - parseFloat(position.top));
+        return Math.sqrt(dx * dx + dy * dy) < minDistance;
+      });
+    } while (tooClose);
+  
+    return position;
+  };
+  
+  const handleFloatingInteraction = (type) => {
+    const gifs = [];
+    const positions = [];
+    const sourceGif = type === 'yes' ? heartGif : sadGif;
+  
+    for (let i = 0; i < 10; i++) {
+      const newPosition = generateRandomPositionWithSpacing(positions);
+      positions.push(newPosition);
+  
+      gifs.push({
+        id: `${type}-${i}`,
+        src: sourceGif,
+        style: {
+          ...newPosition,
+          animationDuration: `${Math.random() * 2 + 1}s`,
+        },
+      });
     }
-    const audio = new Audio(url);
-    audio.muted = isMuted;
-    audio.play();
-    audio.onended = () => {
-      const i = list.indexOf(url);
-      playMusic(list[(i + 1) % list.length], list);
+    setFloatingGifs(gifs);
+  };
+  
+  const handleMouseLeave = () => {
+    setFloatingGifs([]);
+  };
+
+  useEffect(() => {
+    if (gifRef.current && yesPressed && noCount > 3) {
+      gifRef.current.src = YesGifs[currentGifIndex];
+    }
+  }, [yesPressed, currentGifIndex]);
+
+  useEffect(() => {
+    if (yesPressed && noCount > 3) {
+      const intervalId = setInterval(() => {
+        setCurrentGifIndex((prevIndex) => (prevIndex + 1) % YesGifs.length);
+      }, 5000); 
+      return () => clearInterval(intervalId);
+    }
+  }, [yesPressed, noCount]);
+
+  useEffect(() => {
+    if (gifRef.current) {
+      gifRef.current.src = gifRef.current.src; 
+    }
+  }, [noCount]);
+
+  const playMusic = (url, musicArray) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
+    audioRef.current.src = url;
+    audioRef.current.muted = isMuted;
+    
+    const handleEnded = () => {
+      const currentIndex = musicArray.indexOf(url);
+      const nextIndex = (currentIndex + 1) % musicArray.length;
+      playMusic(musicArray[nextIndex], musicArray);
     };
-    setCurrentAudio(audio);
+
+    audioRef.current.onended = handleEnded;
+    audioRef.current.play().catch(e => console.log("Audio play failed (interaction needed):", e));
   };
 
   const toggleMute = () => {
-    if (currentAudio) currentAudio.muted = !isMuted;
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+    }
     setIsMuted(!isMuted);
   };
 
   const handleNoClick = () => {
-    const next = noCount + 1;
-    setNoCount(next);
+    const nextCount = noCount + 1;
+    setNoCount(nextCount);
 
-    if (next >= 4 && gifRef.current) {
-      gifRef.current.src = NoGifs[(next - 4) % NoGifs.length];
+    if (nextCount >= 4) {
+      const nextGifIndex = (nextCount - 4) % NoGifs.length;
+      if (gifRef.current) {
+        gifRef.current.src = NoGifs[nextGifIndex];
+      }
     }
 
-    if (next === 1 || (next - 1) % 7 === 0) {
-      playMusic(NoMusic[Math.floor(next / 7) % NoMusic.length], NoMusic);
+    if (nextCount === 1 || (nextCount - 1) % 7 === 0) {
+      const nextSongIndex = Math.floor(nextCount / 7) % NoMusic.length;
+      playMusic(NoMusic[nextSongIndex], NoMusic);
+    }
+  };
+  
+  const handleYesClick = () => {
+    if(!popupShown){ 
+      setYesPressed(true);
+    }
+    if(noCount > 3){
+      setYesPressed(true);
+      playMusic(YesMusic[0], YesMusic);
     }
   };
 
-  const handleYesClick = () => {
+  const getNoButtonText = () => {
+    const phrases = [
+      "No", "Are you sure?", "Really sure?", "Think again!", "Last chance!", 
+      "Surely not?", "You might regret this!", "Give it another thought!", 
+      "Are you absolutely certain?", "This could be a mistake!", "U Have a heart!💕", 
+      "Don't be so cold!", "Wouldn't you reconsider?", "Is that your final answer?", 
+      "You're breaking my heart ;(", "But... why? 😢", "Please, pretty please? 💖", 
+      "I can't take this! 😫", "Are you sure you want to do this to me? 😢", 
+      "You're gonna hurt my feelings! 😥", "I need you to reconsider, like now! 😓", 
+      "I believe in you, don't disappoint me! 💔", "My heart says yes, what about yours? ❤️", 
+      "Don't leave me hanging! 😬", "Plsss? :( You're breaking my heart 💔"
+    ];
+    return phrases[Math.min(noCount, phrases.length - 1)];
+  };
+
+  useEffect(() => {
     if (yesPressed && noCount < 4 && !popupShown) {
       Swal.fire({
-        title: `I love you sooo much, ${HER_NAME} ❤️  
-But itni pyaari ladki aur itni jaldi haan? 🥹  
-Thoda aur nakhre dikhao na 😌✨`,
+        title: "I love you sooo Much!!!❤️, You’ve stolen my heart completely!!! 🥰💖 But itni pyaari ladki aur itni jaldi haan? Thoda aur nakhre karke mujhe tarpaao na! 🥰✨",
+        showClass: { popup: `animate__animated animate__fadeInUp animate__faster` },
+        width: 700,
+        padding: "2em",
+        color: "#716add",
         background: `#fff url(${swalbg})`,
-        backdrop: `rgba(0,0,0,0.6) url(${loveu}) right no-repeat`,
+        backdrop: `rgba(0,0,123,0.2) url(${loveu}) right no-repeat`,
+        confirmButtonText: "Okay, I'll tease you! 😉"
       });
       setPopupShown(true);
       setYesPressed(false);
-      return;
     }
-
-    if (noCount > 3 && !yespopupShown) {
-      playMusic(YesMusic[0], YesMusic);
+  }, [yesPressed, noCount, popupShown]);
+  
+  useEffect(() => {
+    if (yesPressed && noCount > 3 && !yespopupShown) {
       Swal.fire({
-        title: `I love you so much, ${HER_NAME} ❤️  
-You are my everything — my joy, my forever 💖  
-<br/><br/>Will you be the love of my life forever? 💍`,
+        title: "I love you so much!! ❤️ You are my everything, my joy, my forever. Every moment with you is a memory I’ll cherish forever, and my heart beats only for you.</br> Will you be the love of my life forever?",
+        width: 800,
+        padding: "2em",
+        color: "#716add",
         background: `#fff url(${swalbg})`,
-        backdrop: `rgba(0,0,0,0.7) url(${purposerose}) right no-repeat`,
+        backdrop: `rgba(0,0,123,0.7) url(${purposerose}) right no-repeat`,
+        confirmButtonText: "Yes, Forever! 💍"
       });
       setYesPopupShown(true);
       setYesPressed(true);
-    } else {
-      setYesPressed(true);
     }
-  };
+  }, [yesPressed, noCount, yespopupShown]);
+
+  useEffect(() => {
+    if (noCount === 25) {
+      Swal.fire({
+        title: "My love for you is endless... 🌟 I’ll wait patiently. ❤️ Please press ‘Yes’ now! 🥰✨",
+        width: 850,
+        padding: "2em",
+        color: "#716add",
+        background: `#fff url(${swalbg})`,
+        backdrop: `rgba(0, 104, 123, 0.7) url(${nogif1}) right no-repeat`,
+      });
+    }
+  }, [noCount]);
 
   return (
     <>
-      {/* 🌌 Background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
+      <div className="fixed top-0 left-0 w-screen h-screen -z-20">
         <Spline scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode" />
       </div>
 
+      {yesPressed && noCount > 3 && (
+        <Confetti width={width} height={height} recycle={true} numberOfPieces={200} />
+      )}
+
       {noCount > 16 && noCount < 25 && !yesPressed && <MouseStealing />}
 
-      <div className="flex flex-col items-center justify-center h-screen text-center px-4">
+      <div className="overflow-hidden flex flex-col items-center justify-center pt-4 h-screen selection:bg-rose-600 selection:text-white text-zinc-900 z-10 relative">
+        
         {yesPressed && noCount > 3 ? (
           <>
-            <img ref={gifRef} src={YesGifs[currentGifIndex]} className="h-[230px] rounded-lg" />
-            <h1 className="text-5xl font-bold mt-4">
-              I Love You, {HER_NAME} ❤️
-            </h1>
+            <img
+              ref={gifRef}
+              className="h-[230px] rounded-lg shadow-xl"
+              src={YesGifs[currentGifIndex]}
+              alt="Yes Response"
+            />
+            <div className="text-4xl md:text-6xl font-bold my-4 animate-bounce text-center drop-shadow-lg" 
+                 style={{ fontFamily: "Charm, serif", color: "#d10056" }}>
+              I Love You !!!
+            </div>
+            <div className="text-2xl md:text-4xl font-bold my-1 text-center" 
+                 style={{ fontFamily: "Beau Rivage, serif" }}> 
+               You’re the love of my life. 
+            </div> 
             <WordMareque />
           </>
         ) : (
           <>
-            <img src={lovesvg} className="w-28 animate-pulse mb-4" />
-            <img ref={gifRef} src={Lovegif} className="h-[230px] rounded-lg" />
-            <h1 className="text-4xl mt-4">
-              Will you be my Valentine,{" "}
-              <span className="text-rose-600 font-bold">{HER_NAME}</span>?
+            <img
+              src={lovesvg}
+              className="fixed animate-pulse top-6 left-6 md:w-32 w-24 opacity-90"
+              alt="Love SVG"
+            />
+            <img
+              ref={gifRef}
+              className="h-[230px] rounded-lg shadow-2xl mb-8 transition-all duration-500"
+              src={Lovegif}
+              alt="Love Animation"
+            />
+            
+            {/* THIS IS THE UPDATED HEADING */}
+            <h1 className="text-3xl md:text-5xl my-4 text-center font-bold px-4 drop-shadow-md text-white md:text-zinc-900">
+              Will you be my Valentine, <span className="text-rose-600">Vanshika?</span>
             </h1>
-
-            <div className="flex gap-4 mt-6">
+            
+            <div className="flex flex-wrap justify-center gap-4 items-center mt-4">
               <button
+                onMouseEnter={() => handleFloatingInteraction('yes')}
+                onTouchStart={() => handleFloatingInteraction('yes')}
+                onMouseLeave={handleMouseLeave}
                 onClick={handleYesClick}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all duration-200 ease-in-out"
                 style={{ fontSize: yesButtonSize }}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg"
               >
                 Yes
               </button>
-
+              
               <button
+                onMouseEnter={() => handleFloatingInteraction('no')}
+                onTouchStart={() => handleFloatingInteraction('no')}
+                onMouseLeave={handleMouseLeave}
                 onClick={handleNoClick}
-                className="bg-rose-500 text-white px-4 py-2 rounded-lg"
+                className="bg-rose-500 hover:bg-rose-600 rounded-lg text-white font-bold py-2 px-4 shadow-lg transition-all"
               >
-                No
+                {noCount === 0 ? "No" : getNoButtonText()}
               </button>
             </div>
+
+            {floatingGifs.map((gif) => (
+              <img
+                key={gif.id}
+                src={gif.src}
+                alt="Floating Animation"
+                className="fixed w-12 h-12 pointer-events-none z-50"
+                style={gif.style}
+              />
+            ))}
           </>
         )}
 
         <button
+          className="fixed bottom-10 right-10 bg-white/80 p-3 rounded-full hover:bg-white shadow-lg transition-all z-50 backdrop-blur-sm"
           onClick={toggleMute}
-          className="fixed bottom-6 right-6 bg-gray-200 p-2 rounded-full"
         >
-          {isMuted ? <BsVolumeMuteFill size={26} /> : <BsVolumeUpFill size={26} />}
+          {isMuted ? <BsVolumeMuteFill size={24} className="text-rose-600"/> : <BsVolumeUpFill size={24} className="text-green-600"/>}
         </button>
+        
+        <Footer />
       </div>
     </>
   );
 }
+
+const Footer = () => {
+  return (
+    <a
+      className="fixed bottom-2 right-2 bg-white/30 backdrop-blur-md opacity-80 hover:opacity-100 border p-1 rounded-lg border-rose-300 text-xs md:text-sm font-semibold text-rose-800 transition-all z-50"
+      
+      
+      "
+    >
+      Made with <span className="animate-pulse">❤️</span> by Shivam
+    </a>
+  );
+};
