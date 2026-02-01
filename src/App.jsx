@@ -4,41 +4,43 @@ import Swal from "sweetalert2";
 import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
 
 import MouseStealing from "./MouseStealer.jsx";
-import WordMareque from "./MarqueeProposal.jsx";
-
 import lovesvg from "./assets/All You Need Is Love SVG Cut File.svg";
 import Lovegif from "./assets/GifData/main_temp.gif";
 import heartGif from "./assets/GifData/happy.gif";
 import sadGif from "./assets/GifData/sad.gif";
+import WordMareque from "./MarqueeProposal.jsx";
 import purposerose from "./assets/GifData/RoseCute.gif";
 import swalbg from "./assets/Lovingbg2_main.jpg";
 import loveu from "./assets/GifData/cutieSwal4.gif";
 
+// ❤️ HER NAME
+const HER_NAME = "Vanshika";
+
 // YES GIFS
-import yes0 from "./assets/GifData/Yes/lovecutie0.gif";
-import yes1 from "./assets/GifData/Yes/love2.gif";
-import yes2 from "./assets/GifData/Yes/love3.gif";
-import yes3 from "./assets/GifData/Yes/love1.gif";
-import yes4 from "./assets/GifData/Yes/lovecutie1.gif";
-import yes5 from "./assets/GifData/Yes/lovecutie5.gif";
-import yes6 from "./assets/GifData/Yes/lovecutie7.gif";
-import yes7 from "./assets/GifData/Yes/lovecutie8.gif";
-import yes8 from "./assets/GifData/Yes/lovecutie3.gif";
-import yes9 from "./assets/GifData/Yes/lovecutie9.gif";
-import yes10 from "./assets/GifData/Yes/lovecutie6.gif";
-import yes11 from "./assets/GifData/Yes/lovecutie4.gif";
+import yesgif0 from "./assets/GifData/Yes/lovecutie0.gif";
+import yesgif1 from "./assets/GifData/Yes/love2.gif";
+import yesgif2 from "./assets/GifData/Yes/love3.gif";
+import yesgif3 from "./assets/GifData/Yes/love1.gif";
+import yesgif4 from "./assets/GifData/Yes/lovecutie1.gif";
+import yesgif5 from "./assets/GifData/Yes/lovecutie5.gif";
+import yesgif6 from "./assets/GifData/Yes/lovecutie7.gif";
+import yesgif7 from "./assets/GifData/Yes/lovecutie8.gif";
+import yesgif8 from "./assets/GifData/Yes/lovecutie3.gif";
+import yesgif9 from "./assets/GifData/Yes/lovecutie9.gif";
+import yesgif10 from "./assets/GifData/Yes/lovecutie6.gif";
+import yesgif11 from "./assets/GifData/Yes/lovecutie4.gif";
 
 // NO GIFS
-import no0 from "./assets/GifData/No/breakRej0.gif";
-import no1 from "./assets/GifData/No/breakRej0_1.gif";
-import no2 from "./assets/GifData/No/breakRej1.gif";
-import no3 from "./assets/GifData/No/breakRej2.gif";
-import no4 from "./assets/GifData/No/breakRej3.gif";
-import no5 from "./assets/GifData/No/breakRej4.gif";
-import no6 from "./assets/GifData/No/breakRej5.gif";
-import no7 from "./assets/GifData/No/breakRej6.gif";
-import no8 from "./assets/GifData/No/RejectNo.gif";
-import no9 from "./assets/GifData/No/breakRej7.gif";
+import nogif0 from "./assets/GifData/No/breakRej0.gif";
+import nogif0_1 from "./assets/GifData/No/breakRej0_1.gif";
+import nogif1 from "./assets/GifData/No/breakRej1.gif";
+import nogif2 from "./assets/GifData/No/breakRej2.gif";
+import nogif3 from "./assets/GifData/No/breakRej3.gif";
+import nogif4 from "./assets/GifData/No/breakRej4.gif";
+import nogif5 from "./assets/GifData/No/breakRej5.gif";
+import nogif6 from "./assets/GifData/No/breakRej6.gif";
+import nogif7 from "./assets/GifData/No/RejectNo.gif";
+import nogif8 from "./assets/GifData/No/breakRej7.gif";
 
 // MUSIC
 import yesmusic1 from "./assets/AudioTracks/Love_LoveMeLikeYouDo.mp3";
@@ -52,10 +54,8 @@ import nomusic3 from "./assets/AudioTracks/Reject_withoutMe.mp3";
 import nomusic4 from "./assets/AudioTracks/Neutral_Base_IHateU.mp3";
 import nomusic5 from "./assets/AudioTracks/Reject1_TooGood.mp3";
 
-const HER_NAME = "Vanshika";
-
-const YesGifs = [yes0, yes1, yes2, yes3, yes4, yes5, yes6, yes7, yes8, yes9, yes10, yes11];
-const NoGifs = [no0, no1, no2, no3, no4, no5, no6, no7, no8, no9];
+const YesGifs = [yesgif0, yesgif1, yesgif2, yesgif3, yesgif4, yesgif5, yesgif6, yesgif7, yesgif8, yesgif9, yesgif10, yesgif11];
+const NoGifs = [nogif0, nogif0_1, nogif1, nogif2, nogif3, nogif4, nogif5, nogif6, nogif7, nogif8];
 const YesMusic = [yesmusic1, yesmusic3, yesmusic4, yesmusic2];
 const NoMusic = [nomusic1, nomusic2, nomusic3, nomusic4, nomusic5];
 
@@ -70,23 +70,8 @@ export default function Page() {
 
   const gifRef = useRef(null);
 
+  // 🔒 size cap (mobile safe)
   const yesButtonSize = Math.min(noCount * 16 + 16, 72);
-  const [floatingGifs, setFloatingGifs] = useState([]);
-
-  const spawnFloating = (src) => {
-    const gifs = [];
-    for (let i = 0; i < 10; i++) {
-      gifs.push({
-        id: i,
-        src,
-        style: {
-          top: `${Math.random() * 80 + 10}vh`,
-          left: `${Math.random() * 80 + 10}vw`,
-        },
-      });
-    }
-    setFloatingGifs(gifs);
-  };
 
   const playMusic = (url, list) => {
     if (currentAudio) {
@@ -101,6 +86,11 @@ export default function Page() {
       playMusic(list[(i + 1) % list.length], list);
     };
     setCurrentAudio(audio);
+  };
+
+  const toggleMute = () => {
+    if (currentAudio) currentAudio.muted = !isMuted;
+    setIsMuted(!isMuted);
   };
 
   const handleNoClick = () => {
@@ -146,20 +136,16 @@ You are my everything — my joy, my forever 💖
     }
   };
 
-  const toggleMute = () => {
-    if (currentAudio) currentAudio.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
-
   return (
     <>
+      {/* 🌌 Background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Spline scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode" />
       </div>
 
       {noCount > 16 && noCount < 25 && !yesPressed && <MouseStealing />}
 
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
+      <div className="flex flex-col items-center justify-center h-screen text-center px-4">
         {yesPressed && noCount > 3 ? (
           <>
             <img ref={gifRef} src={YesGifs[currentGifIndex]} className="h-[230px] rounded-lg" />
@@ -173,36 +159,26 @@ You are my everything — my joy, my forever 💖
             <img src={lovesvg} className="w-28 animate-pulse mb-4" />
             <img ref={gifRef} src={Lovegif} className="h-[230px] rounded-lg" />
             <h1 className="text-4xl mt-4">
-              Will you be my Valentine, <span className="text-rose-600 font-bold">{HER_NAME}</span>?
+              Will you be my Valentine,{" "}
+              <span className="text-rose-600 font-bold">{HER_NAME}</span>?
             </h1>
 
-            <div className="flex gap-4 mt-6 flex-wrap justify-center">
+            <div className="flex gap-4 mt-6">
               <button
                 onClick={handleYesClick}
-                onMouseEnter={() => spawnFloating(heartGif)}
-                className="bg-green-500 text-white font-bold py-2 px-4 rounded-lg"
                 style={{ fontSize: yesButtonSize }}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg"
               >
                 Yes
               </button>
 
               <button
                 onClick={handleNoClick}
-                onMouseEnter={() => spawnFloating(sadGif)}
-                className="bg-rose-500 text-white font-bold py-2 px-4 rounded-lg"
+                className="bg-rose-500 text-white px-4 py-2 rounded-lg"
               >
                 No
               </button>
             </div>
-
-            {floatingGifs.map((g) => (
-              <img
-                key={g.id}
-                src={g.src}
-                className="absolute w-12 h-12 animate-bounce"
-                style={g.style}
-              />
-            ))}
           </>
         )}
 
@@ -210,7 +186,7 @@ You are my everything — my joy, my forever 💖
           onClick={toggleMute}
           className="fixed bottom-6 right-6 bg-gray-200 p-2 rounded-full"
         >
-          {isMuted ? <BsVolumeMuteFill size={24} /> : <BsVolumeUpFill size={24} />}
+          {isMuted ? <BsVolumeMuteFill size={26} /> : <BsVolumeUpFill size={26} />}
         </button>
       </div>
     </>
