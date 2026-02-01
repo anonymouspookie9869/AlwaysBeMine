@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
-import Confetti from "react-confetti";
+// import Confetti from "react-confetti";  <-- REMOVED THIS LINE
 import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
 
 import MouseStealing from './MouseStealer.jsx';
@@ -63,15 +63,13 @@ export default function Page() {
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
   
+  // Safe Audio initialization
   const audioRef = useRef(typeof Audio !== "undefined" ? new Audio() : null);
   const [isMuted, setIsMuted] = useState(false);
   
   const [currentGifIndex, setCurrentGifIndex] = useState(0); 
   const [popupShown, setPopupShown] = useState(false);
   const [yespopupShown, setYesPopupShown] = useState(false);
-  
-  // Custom hook for window size to avoid external dependencies
-  const { width, height } = useWindowSize();
 
   const gifRef = useRef(null);
   
@@ -268,10 +266,8 @@ export default function Page() {
         <Spline scene="https://prod.spline.design/oSxVDduGPlsuUIvT/scene.splinecode" />
       </div>
 
-      {yesPressed && noCount > 3 && (
-        <Confetti width={width} height={height} recycle={true} numberOfPieces={200} />
-      )}
-
+      {/* CONFETTI REMOVED TO FIX BUILD ERROR */}
+      
       {noCount > 16 && noCount < 25 && !yesPressed && <MouseStealing />}
 
       <div className="overflow-hidden flex flex-col items-center justify-center pt-4 h-screen selection:bg-rose-600 selection:text-white text-zinc-900 z-10 relative">
@@ -360,10 +356,6 @@ export default function Page() {
   );
 }
 
-// -------------------------------------------------
-// Helper Components & Hooks
-// -------------------------------------------------
-
 const Footer = () => {
   return (
     <a
@@ -372,34 +364,7 @@ const Footer = () => {
       target="_blank"
       rel="noopener noreferrer"
     >
-      Made with <span className="animate-pulse">❤️</span> by Shivam
+      Made with <span className="animate-pulse">❤️</span> by Your Dino
     </a>
   );
 };
-
-// Custom Hook to get Window Size (Avoids installing 'react-use')
-function useWindowSize() {
-  const [windowSize, setWindowSize] = useState({
-    width: undefined,
-    height: undefined,
-  });
-
-  useEffect(() => {
-    // Only execute on client side
-    if (typeof window !== 'undefined') {
-      function handleResize() {
-        setWindowSize({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      }
-      
-      window.addEventListener("resize", handleResize);
-      handleResize(); // Call immediately
-      
-      return () => window.removeEventListener("resize", handleResize);
-    }
-  }, []);
-
-  return windowSize;
-}
