@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Spline from "@splinetool/react-spline";
 import Swal from "sweetalert2";
-import Confetti from "react-confetti"; 
-import { useWindowSize } from "react-use"; 
+import Confetti from "react-confetti";
 import { BsVolumeUpFill, BsVolumeMuteFill } from "react-icons/bs";
 
 import MouseStealing from './MouseStealer.jsx';
@@ -64,14 +63,15 @@ export default function Page() {
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
   
-  const audioRef = useRef(new Audio()); 
+  const audioRef = useRef(typeof Audio !== "undefined" ? new Audio() : null);
   const [isMuted, setIsMuted] = useState(false);
   
   const [currentGifIndex, setCurrentGifIndex] = useState(0); 
   const [popupShown, setPopupShown] = useState(false);
   const [yespopupShown, setYesPopupShown] = useState(false);
   
-  const { width, height } = typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : { width: 0, height: 0 };
+  // Custom hook for window size to avoid external dependencies
+  const { width, height } = useWindowSize();
 
   const gifRef = useRef(null);
   
@@ -147,6 +147,8 @@ export default function Page() {
   }, [noCount]);
 
   const playMusic = (url, musicArray) => {
+    if (!audioRef.current) return;
+
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -306,7 +308,6 @@ export default function Page() {
               alt="Love Animation"
             />
             
-            {/* THIS IS THE UPDATED HEADING */}
             <h1 className="text-3xl md:text-5xl my-4 text-center font-bold px-4 drop-shadow-md text-white md:text-zinc-900">
               Will you be my Valentine, <span className="text-rose-600">Vanshika?</span>
             </h1>
@@ -359,15 +360,46 @@ export default function Page() {
   );
 }
 
+// -------------------------------------------------
+// Helper Components & Hooks
+// -------------------------------------------------
+
 const Footer = () => {
   return (
     <a
       className="fixed bottom-2 right-2 bg-white/30 backdrop-blur-md opacity-80 hover:opacity-100 border p-1 rounded-lg border-rose-300 text-xs md:text-sm font-semibold text-rose-800 transition-all z-50"
-      
-      
-      "
+      href="https://github.com/UjjwalSaini07"
+      target="_blank"
+      rel="noopener noreferrer"
     >
       Made with <span className="animate-pulse">❤️</span> by Shivam
     </a>
   );
 };
+
+// Custom Hook to get Window Size (Avoids installing 'react-use')
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    height: undefined,
+  });
+
+  useEffect(() => {
+    // Only execute on client side
+    if (typeof window !== 'undefined') {
+      function handleResize() {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }
+      
+      window.addEventListener("resize", handleResize);
+      handleResize(); // Call immediately
+      
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
+  return windowSize;
+}
